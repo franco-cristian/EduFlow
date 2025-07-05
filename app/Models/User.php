@@ -45,4 +45,32 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
+    public function files()
+    {
+        return $this->hasMany(ProjectFile::class, 'uploaded_by');
+    }
+
+    public function chatHistory()
+    {
+        return $this->hasMany(ChatHistory::class);
+    }
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
 }
