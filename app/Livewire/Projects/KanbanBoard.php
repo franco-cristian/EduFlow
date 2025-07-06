@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Livewire\Projects;
+namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Project;
 use App\Models\Task;
+use Livewire\Attributes\On; // <-- Importar el atributo On
 
 class KanbanBoard extends Component
 {
@@ -21,20 +22,25 @@ class KanbanBoard extends Component
 
     public function loadTasks()
     {
-        $this->todoTasks = $this->project->tasks()->where('status', 'todo')->get();
-        $this->inProgressTasks = $this->project->tasks()->where('status', 'in_progress')->get();
-        $this->completedTasks = $this->project->tasks()->where('status', 'completed')->get();
+        $tasks = $this->project->tasks()->with('assignee')->get();
+        $this->todoTasks = $tasks->where('status', 'todo');
+        $this->inProgressTasks = $tasks->where('status', 'in_progress');
+        $this->completedTasks = $tasks->where('status', 'completed');
     }
 
+    #[On('task-updated')] // <-- Escucha el evento que enviaremos desde el frontend
     public function updateTaskStatus($taskId, $status)
     {
-        Task::find($taskId)->update(['status' => $status]);
-        $this->loadTasks();
-        $this->dispatch('notify', type: 'success', message: 'Estado actualizado');
+        $task = Task::find($taskId);
+        if ($task && $task->project_id === $this->project->id) {
+            $task->update(['status' => $status]);
+            $this->loadTasks();
+            $this->dispatch('notify', type: 'success', message: 'Estado actualizado');
+        }
     }
 
     public function render()
     {
-        return view('livewire.kanban-board');
+        return view('livewire.projects.kanban-board');
     }
 }

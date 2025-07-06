@@ -4,7 +4,9 @@ namespace App\Livewire\Auth;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\Layout; // <-- Importar el atributo de Layout
 
+#[Layout('layouts.guest')] // <-- Usar el atributo aquí para definir el layout
 class Login extends Component
 {
     public string $email = '';
@@ -14,30 +16,28 @@ class Login extends Component
     protected function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email'    => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
         ];
     }
 
     public function login()
     {
-        $validated = $this->validate();
+        $credentials = $this->validate();
 
-        if (!Auth::attempt($validated, $this->remember)) {
-            // Si la autenticación falla, añade un error específico al campo de email.
+        if (!Auth::attempt($credentials, $this->remember)) {
             $this->addError('email', 'Las credenciales proporcionadas no coinciden con nuestros registros.');
             return;
         }
 
-        // Regenera la sesión para prevenir "session fixation"
         request()->session()->regenerate();
 
-        // Redirige al dashboard
         return redirect()->intended(route('dashboard'));
     }
 
     public function render()
     {
-        return view('livewire.auth.login')->layout('layouts.guest');
+        // Ya no se necesita ->layout() aquí
+        return view('livewire.auth.login');
     }
 }
