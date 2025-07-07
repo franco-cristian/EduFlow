@@ -1,94 +1,142 @@
 @extends('layouts.app')
 
-@section('title', 'Panel del Estudiante')
+@section('title', 'Dashboard del Estudiante')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">Bienvenido, {{ auth()->user()->name }}</h1>
-        <a href="{{ route('student.projects.create') }}" class="inline-flex items-center px-4 py-2 bg-education-primary text-white font-semibold text-sm rounded-lg shadow-sm hover:bg-education-secondary transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    {{-- Encabezado y Botón de Nuevo Proyecto --}}
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
+        <h2 class="text-4xl font-bold text-gray-800 mb-4 md:mb-0">
+            Bienvenido, {{ auth()->user()->name }}
+        </h2>
+        <a href="{{ route('student.projects.create') }}" 
+           class="flex items-center bg-education-primary hover:bg-education-secondary text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+            <span class="material-icons-outlined mr-2">add</span>
             Nuevo Proyecto
         </a>
     </div>
 
-    <!-- Resumen de tarjetas -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <x-card class="flex items-center p-6">
-            <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+    {{-- Tarjetas de Estadísticas (Stats Cards) --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        
+        {{-- Tarjeta 1: Proyectos Activos --}}
+        <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-blue-100 rounded-full">
+                    <span class="material-icons-outlined text-blue-500">inventory_2</span>
+                </div>
             </div>
             <div>
-                <p class="text-sm font-medium text-gray-500">Proyectos Activos</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $activeProjects }}</p>
+                <p class="text-gray-500 text-base mb-1">Proyectos Activos</p>
+                <p class="text-4xl font-bold text-gray-800">{{ $activeProjects }}</p>
             </div>
-        </x-card>
-        <x-card class="flex items-center p-6">
-            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-            </div>
-            <div>
-                <p class="text-sm font-medium text-gray-500">Tareas Pendientes</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $pendingTasks }}</p>
-            </div>
-        </x-card>
-        <x-card class="flex items-center p-6">
-            <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+
+        {{-- Tarjeta 2: Tareas Pendientes --}}
+        <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-yellow-100 rounded-full">
+                    <span class="material-icons-outlined text-yellow-500">pending_actions</span>
+                </div>
             </div>
             <div>
-                <p class="text-sm font-medium text-gray-500">Proyectos Completados</p>
-                <p class="text-2xl font-bold text-gray-900">{{ $completedProjects }}</p>
+                <p class="text-gray-500 text-base mb-1">Tareas Pendientes</p>
+                <p class="text-4xl font-bold text-gray-800">{{ $pendingTasks }}</p>
             </div>
-        </x-card>
+        </div>
+
+        {{-- Tarjeta 3: Proyectos Completados --}}
+        <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-green-100 rounded-full">
+                    <span class="material-icons-outlined text-green-500">check_circle_outline</span>
+                </div>
+            </div>
+            <div>
+                <p class="text-gray-500 text-base mb-1">Proyectos Completados</p>
+                <p class="text-4xl font-bold text-gray-800">{{ $completedProjects }}</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Proyectos recientes -->
-    <x-card>
-        <x-slot name="header">
-            <div class="flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-gray-800">Mis Proyectos Recientes</h3>
-                <a href="{{ route('student.projects.index') }}" class="text-sm font-medium text-education-primary hover:text-education-secondary">Ver todos</a>
-            </div>
-        </x-slot>
-        
-        <div class="divide-y divide-gray-200">
-            @forelse($projects as $project)
-                <div class="p-4 flex justify-between items-center hover:bg-gray-50">
-                    <div>
-                        <a href="{{ route('student.projects.show', $project) }}" class="font-semibold text-gray-800">{{ $project->title }}</a>
-                        <p class="text-sm text-gray-500 mt-1">Fecha de entrega: {{ $project->end_date->format('d M, Y') }}</p>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <x-badge :color="$project->status === 'completed' ? 'green' : ($project->status === 'in_progress' ? 'yellow' : 'blue')">
-                            {{ ucfirst(str_replace('_', ' ', $project->status)) }}
-                        </x-badge>
-                        <div class="w-24">
-                            <p class="text-sm text-gray-600 text-right">{{ $project->progress() }}%</p>
-                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                                <div class="bg-education-primary h-1.5 rounded-full" style="width: {{ $project->progress() }}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="text-center py-12 text-gray-500">
-                    <p>Aún no has creado ningún proyecto.</p>
-                    <a href="{{ route('student.projects.create') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-education-primary text-white font-semibold text-sm rounded-lg shadow-sm hover:bg-education-secondary transition">
+    {{-- Sección de Proyectos Recientes --}}
+<section>
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-bold text-gray-800">Mis Proyectos Recientes</h3>
+        <a href="{{ route('student.projects.index') }}" class="text-sm font-semibold text-education-primary hover:underline">
+            Ver todos los proyectos
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            @if($projects->isEmpty())
+                {{-- Estado Vacío --}}
+                <div class="text-center py-16 px-6">
+                    <span class="material-icons-outlined text-5xl text-gray-400 mb-4">folder_off</span>
+                    <p class="text-gray-500 mb-6 text-lg">Aún no has creado ningún proyecto.</p>
+                    <a href="{{ route('student.projects.create') }}" 
+                       class="inline-flex items-center bg-education-primary hover:bg-education-secondary text-white font-semibold py-2 px-5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
                         Crea tu primer proyecto
                     </a>
                 </div>
-            @endforelse
+            @else
+                {{-- Tabla de Proyectos --}}
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wider">Nombre del Proyecto</th>
+                            <th class="px-6 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-3 text-sm font-semibold text-gray-600 uppercase tracking-wider">Progreso</th>
+                            <th class="relative px-6 py-3"><span class="sr-only">Ver</span></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        @foreach($projects as $project)
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <a href="{{ route('student.projects.show', $project) }}" class="font-medium text-gray-900 hover:text-education-primary">
+                                        {{ $project->title }}
+                                    </a>
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        Vence: {{ $project->end_date->format('d M, Y') }}
+                                    </p>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @php
+                                        $statusClasses = [
+                                            'planning' => 'bg-blue-100 text-blue-800',
+                                            'in_progress' => 'bg-yellow-100 text-yellow-800',
+                                            'completed' => 'bg-green-100 text-green-800',
+                                        ];
+                                    @endphp
+                                    <span class="text-xs font-medium px-2.5 py-1 rounded-full {{ $statusClasses[$project->status] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ Str::ucfirst(str_replace('_', ' ', $project->status)) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-education-primary h-2 rounded-full" style="width: {{ $project->progress }}%"></div>
+                                        </div>
+                                        <span class="font-medium text-sm text-gray-600">{{ $project->progress }}%</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="{{ route('student.projects.show', $project) }}" class="text-education-primary hover:text-education-secondary">Ver</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
         </div>
-        
         @if($projects->hasPages())
-        <x-slot name="footer">
-            {{ $projects->links() }}
-        </x-slot>
+            <div class="p-4 bg-gray-50 border-t border-gray-200">
+                {{ $projects->links() }}
+            </div>
         @endif
-    </x-card>
-
+    </div>
+</section>
 </div>
 @endsection

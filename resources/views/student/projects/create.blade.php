@@ -7,7 +7,7 @@
     <h1 class="text-3xl font-bold text-gray-800 mb-6">Crear Nuevo Proyecto</h1>
     
     <div class="max-w-4xl mx-auto">
-        @livewire('projects.project-form')
+        @livewire('student.project-form')
     </div>
 </div>
 @endsection

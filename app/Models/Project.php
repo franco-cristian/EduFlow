@@ -53,10 +53,18 @@ class Project extends Model
     {
         return Attribute::make(
             get: function () {
+                // Regla #1: Si el proyecto está marcado como completado, el progreso es 100%.
+                if ($this->status === 'completed') {
+                    return 100;
+                }
+
+                // Regla #2: Si no hay tareas, el progreso es 0%.
                 $totalTasks = $this->tasks()->count();
                 if ($totalTasks === 0) {
                     return 0;
                 }
+
+                // Regla #3: Si hay tareas, calcula el progreso basado en ellas.
                 $completedTasks = $this->tasks()->where('status', 'completed')->count();
                 return round(($completedTasks / $totalTasks) * 100);
             }

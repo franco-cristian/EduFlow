@@ -2,48 +2,35 @@
 
 namespace App\Livewire\Tasks;
 
-use Livewire\Component;
-use App\Models\Task;
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Livewire\Component;
 
 class TaskForm extends Component
 {
-    public $projectId;
-    public $taskId;
+    public Project $project;
+    public ?Task $task = null;
+
     public $title;
     public $description;
     public $status = 'todo';
     public $due_date;
     public $assigned_to;
+
     public $isEditing = false;
+    public $showModal = false;
 
-    protected $listeners = ['editTask' => 'loadTask'];
+    protected $listeners = ['editTask' => 'edit'];
 
-    public function mount($projectId, $taskId = null)
+    public function mount(Project $project)
     {
-        $this->projectId = $projectId;
-        
-        if ($taskId) {
-            $this->loadTask($taskId);
-        } else {
-            $this->due_date = now()->addDays(3)->format('Y-m-d');
-        }
-    }
-
-    public function loadTask($taskId)
-    {
-        $this->taskId = $taskId;
-        $task = Task::findOrFail($taskId);
-        
-        $this->isEditing = true;
-        $this->title = $task->title;
-        $this->description = $task->description;
-        $this->status = $task->status;
-        $this->due_date = $task->due_date->format('Y-m-d');
-        $this->assigned_to = $task->assigned_to;
+        $this->project = $project;
+        $this->task = new Task();
+        $this->due_date = now()->addDays(7)->format('Y-m-d');
+        $this->assigned_to = Auth::id(); // Por defecto, se asigna al usuario actual
     }
 
     public function rules()
@@ -53,39 +40,63 @@ class TaskForm extends Component
             'description' => 'nullable|string',
             'status' => ['required', Rule::in(['todo', 'in_progress', 'completed'])],
             'due_date' => 'required|date',
-            'assigned_to' => 'required|exists:users,id',
+            'assigned_to' => 'nullable|exists:users,id',
         ];
+    }
+    
+    public function openModal()
+    {
+        $this->resetErrorBag();
+        $this->isEditing = false;
+        $this->task = new Task();
+        $this->title = '';
+        $this->description = '';
+        $this->status = 'todo';
+        $this->due_date = now()->addDays(7)->format('Y-m-d');
+        $this->assigned_to = Auth::id();
+        $this->showModal = true;
+    }
+
+    public function edit(Task $task)
+    {
+        $this->resetErrorBag();
+        $this->isEditing = true;
+        $this->task = $task;
+        $this->title = $task->title;
+        $this->description = $task->description;
+        $this->status = $task->status;
+        $this->due_date = $task->due_date->format('Y-m-d');
+        $this->assigned_to = $task->assigned_to;
+        $this->showModal = true;
     }
 
     public function save()
     {
         $this->validate();
 
-        $taskData = [
+        $this->task->fill([
+            'project_id' => $this->project->id,
             'title' => $this->title,
             'description' => $this->description,
             'status' => $this->status,
             'due_date' => $this->due_date,
-            'assigned_to' => $this->assigned_to,
-            'project_id' => $this->projectId,
-        ];
+            'assigned_to' => $this->assigned_to ?? Auth::id(), // Asigna al creador si no se elige a nadie
+        ]);
+        
+        $this->task->save();
 
-        if ($this->isEditing) {
-            $task = Task::findOrFail($this->taskId);
-            $task->update($taskData);
-        } else {
-            Task::create($taskData);
-        }
-
-        session()->flash('message', 'Tarea guardada correctamente');
-        $this->dispatch('taskSaved');
+        $this->showModal = false;
+        $this->dispatch('taskSaved'); // Notifica al Kanban que debe refrescarse
+        session()->flash('message', 'Tarea guardada correctamente.');
     }
 
     public function render()
     {
-        $project = Project::findOrFail($this->projectId);
-        $students = $project->students;
-        
-        return view('livewire.task-form', compact('students'));
+        // En el futuro, aquí podrías pasar una lista de miembros del equipo.
+        $teamMembers = User::where('id', Auth::id())->get();
+
+        return view('livewire.tasks.task-form', [
+            'teamMembers' => $teamMembers
+        ]);
     }
 }

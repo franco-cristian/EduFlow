@@ -1,106 +1,163 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduTrack Pro - @yield('title')</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EduFlow - @yield('title', 'Panel')</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 </head>
 
-<body class="bg-gray-50">
-    <!-- Header -->
-    <header class="bg-education-primary text-white shadow-md">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-                <h1 class="text-xl font-bold">EduTrack Pro</h1>
-            </div>
+<body class="font-sans antialiased bg-gray-100">
+    <div class="min-h-screen">
+        <header x-data="{ mobileMenuOpen: false }" class="bg-education-primary shadow-md">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <!-- Logo y Navegación Desktop -->
+                    <div class="flex items-center">
+                        <a href="{{ route('dashboard') }}" class="flex-shrink-0 flex items-center space-x-2 text-white">
+                            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <span class="text-xl font-bold">EduFlow</span>
+                        </a>
+                        <nav class="hidden md:ml-10 md:flex md:items-baseline md:space-x-4">
+                            <a href="{{ route('dashboard') }}" class="text-white hover:text-indigo-200 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
+                            @auth
+                            @if(in_array(auth()->user()->role, ['student', 'teacher']))
+                            <a href="{{ route(auth()->user()->role . '.projects.index') }}" class="text-white hover:text-indigo-200 px-3 py-2 rounded-md text-sm font-medium">Proyectos</a>
+                            @endif
+                            <button @click="$dispatch('toggle-chatbot')" class="text-white hover:text-indigo-200 px-3 py-2 rounded-md text-sm font-medium">Asistente IA</button>
+                            @endauth
+                        </nav>
+                    </div>
 
-            <!-- Navegación -->
-            <nav class="hidden md:block">
-                <ul class="flex space-x-6">
-                    <li><a href="{{ route('dashboard') }}" class="hover:text-education-secondary transition">Inicio</a></li>
-                    @auth
-                    <li><a href="{{ route(auth()->user()->role . '.projects.index') }}" class="hover:text-education-secondary transition">Proyectos</a></li>
-                    <li><a href="{{ route('ai.assistant') }}" class="hover:text-education-secondary transition">Asistente IA</a></li>
-                    @endauth
-                </ul>
-            </nav>
-
-            <!-- Usuario -->
-            @auth
-            <div class="flex items-center space-x-4">
-                <div class="relative group">
-                    <button class="flex items-center space-x-2 focus:outline-none">
-                        <div class="w-8 h-8 rounded-full bg-education-secondary flex items-center justify-center text-white font-semibold">
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    <!-- Menú de Usuario y Hamburguesa -->
+                    <div class="flex items-center">
+                        <div class="hidden md:block">
+                            @auth
+                            <div x-data="{ userMenuOpen: false }" class="relative ml-3">
+                                <button @click="userMenuOpen = !userMenuOpen" type="button" class="max-w-xs bg-education-secondary rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-education-dark focus:ring-white">
+                                    <span class="sr-only">Abrir menú de usuario</span>
+                                    <div class="h-8 w-8 rounded-full flex items-center justify-center font-bold text-white">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                                </button>
+                                <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-transition x-cloak class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                                    <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi Perfil</a>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cerrar sesión</button>
+                                    </form>
+                                </div>
+                            </div>
+                            @endauth
                         </div>
-                        <span class="hidden lg:inline">{{ auth()->user()->name }}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                    <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 hidden group-hover:block z-50">
-                        <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Perfil</a>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100">Cerrar sesión</button>
-                        </form>
+                        <div class="-mr-2 flex md:hidden">
+                            <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-education-secondary focus:outline-none">
+                                <span class="sr-only">Abrir menú</span>
+                                <svg x-show="!mobileMenuOpen" class="h-6 w-6 block" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                </svg>
+                                <svg x-show="mobileMenuOpen" class="h-6 w-6 hidden" stroke="currentColor" fill="none" viewBox="0 0 24 24" x-cloak>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-            @else
-            <div class="flex space-x-4">
-                <a href="{{ route('login') }}" class="px-4 py-2 rounded hover:bg-education-secondary transition">Iniciar sesión</a>
-                <a href="{{ route('register') }}" class="px-4 py-2 bg-white text-education-primary rounded font-medium hover:bg-gray-100 transition">Registrarse</a>
+
+            <!-- Menú Móvil Desplegable -->
+            <div x-show="mobileMenuOpen" class="md:hidden" x-cloak>
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="{{ route('dashboard') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Inicio</a>
+                    @if(in_array(auth()->user()->role, ['student', 'teacher']))
+                    <a href="{{ route(auth()->user()->role . '.projects.index') }}" class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Proyectos</a>
+                    @endif
+                    <button @click="$dispatch('toggle-chatbot'); mobileMenuOpen = false" class="text-gray-300 hover:bg-gray-700 hover:text-white block w-full text-left px-3 py-2 rounded-md text-base font-medium">Asistente IA</button>
+                </div>
+                @auth
+                <div class="pt-4 pb-3 border-t border-gray-700">
+                    <div class="flex items-center px-5">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-education-secondary flex items-center justify-center font-bold text-white">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </div>
+                        <div class="ml-3">
+                            <div class="text-base font-medium leading-none text-white">{{ auth()->user()->name }}</div>
+                            <div class="text-sm font-medium leading-none text-gray-400">{{ auth()->user()->email }}</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 px-2 space-y-1">
+                        <a href="{{ route('profile.show') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Mi Perfil</a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-400 hover:text-white hover:bg-gray-700">Cerrar sesión</button>
+                        </form>
+                    </div>
+                </div>
+                @endauth
             </div>
-            @endauth
+        </header>
 
-            <!-- Menú móvil -->
-            <button class="md:hidden text-white focus:outline-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-            </button>
-        </div>
-    </header>
+        <main>
+            <div class="container mx-auto py-6 sm:px-6 lg:px-8">
+                @yield('content')
+            </div>
+        </main>
+    </div>
 
-    <!-- Contenido principal -->
-    <main class="container mx-auto px-4 py-8">
-        @yield('content')
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    {{-- ... justo después de la etiqueta de cierre </main> ... --}}
+    <footer class="bg-gray-800 text-white">
+        <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">EduTrack Pro</h3>
+                    <h3 class="text-lg font-semibold mb-4">EduFlow</h3>
                     <p class="text-gray-400">Plataforma de gestión de proyectos académicos para instituciones educativas.</p>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Enlaces</h3>
+                    <h3 class="text-lg font-semibold mb-4">Enlaces Rápidos</h3>
                     <ul class="space-y-2">
                         <li><a href="#" class="text-gray-400 hover:text-white transition">Documentación</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white transition">Soporte</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Política de privacidad</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Política de Privacidad</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold mb-4">Contacto</h3>
-                    <p class="text-gray-400">contacto@edutrackpro.edu</p>
-                    <p class="text-gray-400">+1 (234) 567-890</p>
+                    <h3 class="text-lg font-semibold mb-4">Desarrollador</h3>
+                    <ul class="space-y-2">
+                        {{-- ENLACE AL PORTAFOLIO AQUÍ --}}
+                        <li>
+                            <a href="https://tu-url-de-portafolio.com" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-white transition">
+                                Ver Portafolio de Cristian Franco
+                            </a>
+                        </li>
+                        <li>
+                            <p class="text-gray-400">contacto@eduflow.com</p>
+                        </li>
+                    </ul>
                 </div>
             </div>
-            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
-                <p>&copy; {{ date('Y') }} EduTrack Pro. Todos los derechos reservados.</p>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400 text-sm">
+                <p>© {{ date('Y') }} EduFlow. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
-    @livewire('floating-chatbot')
+
+    @livewire('ui.floating-chatbot')
+
+    @livewireScripts
+    <script src="//cdn.jsdelivr.net/npm/alpinejs" defer></script>
     @stack('scripts')
 </body>
 

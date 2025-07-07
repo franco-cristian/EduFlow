@@ -15,12 +15,16 @@ class FloatingChatbot extends Component
 
     protected $listeners = ['toggleChatbot' => 'toggle'];
 
+    public function mount()
+    {
+        if (empty($this->messages)) {
+            $this->addBotMessage("¡Hola! Soy tu asistente educativo. ¿En qué puedo ayudarte hoy?");
+        }
+    }
+
     public function toggle()
     {
         $this->isOpen = !$this->isOpen;
-        if ($this->isOpen && empty($this->messages)) {
-            $this->addBotMessage("¡Hola! Soy tu asistente educativo. ¿En qué puedo ayudarte hoy?");
-        }
     }
 
     public function toggleFullscreen()
@@ -36,10 +40,15 @@ class FloatingChatbot extends Component
         $this->isTyping = true;
         
         try {
+            // Esta llamada ahora es segura. Si falla, será dentro del try-catch.
             $response = app(OpenAIService::class)->ask($this->message);
             $this->addBotMessage($response);
         } catch (\Exception $e) {
-            $this->addBotMessage("Lo siento, hubo un error. Por favor intenta nuevamente.");
+            // Loguea el error real para que puedas verlo en storage/logs/laravel.log
+            \Log::error('Error en Chatbot: ' . $e->getMessage()); 
+            
+            // Muestra un mensaje amigable al usuario
+            $this->addBotMessage("Lo siento, no puedo conectar con el asistente en este momento. Revisa la configuración de la API.");
         }
 
         $this->isTyping = false;
@@ -48,24 +57,17 @@ class FloatingChatbot extends Component
 
     private function addUserMessage($text)
     {
-        $this->messages[] = [
-            'type' => 'user',
-            'text' => $text,
-            'time' => now()->format('H:i')
-        ];
+        $this->messages[] = ['type' => 'user', 'text' => $text, 'time' => now()->format('H:i')];
     }
 
     private function addBotMessage($text)
     {
-        $this->messages[] = [
-            'type' => 'bot',
-            'text' => $text,
-            'time' => now()->format('H:i')
-        ];
+        $this->messages[] = ['type' => 'bot', 'text' => $text, 'time' => now()->format('H:i')];
     }
 
     public function render()
     {
-        return view('livewire.floating-chatbot');
+        // La vista sigue siendo la misma, pero ahora la clase del componente no se romperá
+        return view('livewire.ui.floating-chatbot');
     }
 }

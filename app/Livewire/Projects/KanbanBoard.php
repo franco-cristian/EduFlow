@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Projects;
 
 use Livewire\Component;
 use App\Models\Project;
@@ -13,6 +13,7 @@ class KanbanBoard extends Component
     public $todoTasks;
     public $inProgressTasks;
     public $completedTasks;
+    protected $listeners = ['taskSaved' => 'loadTasks', 'task-updated' => 'updateTaskStatus'];
 
     public function mount(Project $project)
     {

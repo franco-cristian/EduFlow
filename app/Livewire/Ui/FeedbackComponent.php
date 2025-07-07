@@ -2,33 +2,26 @@
 
 namespace App\Livewire\Ui;
 
-use Livewire\Component;
 use App\Models\Feedback;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class FeedbackComponent extends Component
 {
-    public $projectId;
+    public Project $project;
     public $content = '';
-    public $feedbacks = [];
-
-    public function mount($projectId)
+    
+    // El método mount es más eficiente para pasar modelos completos
+    public function mount(Project $project)
     {
-        $this->projectId = $projectId;
-        $this->loadFeedback();
-    }
-
-    public function loadFeedback()
-    {
-        $project = Project::findOrFail($this->projectId);
-        $this->feedbacks = $project->feedback()->with('user')->latest()->get();
+        $this->project = $project;
     }
 
     public function rules()
     {
         return [
-            'content' => 'required|string|min:10|max:1000',
+            'content' => 'required|string|min:5|max:1000',
         ];
     }
 
@@ -37,18 +30,22 @@ class FeedbackComponent extends Component
         $this->validate();
 
         Feedback::create([
-            'content' => $this->content,
-            'project_id' => $this->projectId,
+            'project_id' => $this->project->id,
             'user_id' => Auth::id(),
+            'content' => $this->content,
         ]);
 
-        $this->reset('content');
-        $this->loadFeedback();
-        $this->dispatch('feedbackAdded');
+        $this->reset('content'); // Limpia el textarea
+        session()->flash('feedback_message', 'Comentario añadido.');
     }
 
     public function render()
     {
-        return view('livewire.feedback-component');
+        // Cargamos los feedbacks con sus relaciones (usuario) para optimizar consultas
+        $feedbacks = $this->project->feedbacks()->with('user')->latest()->get();
+        
+        return view('livewire.ui.feedback-component', [
+            'feedbacks' => $feedbacks
+        ]);
     }
 }

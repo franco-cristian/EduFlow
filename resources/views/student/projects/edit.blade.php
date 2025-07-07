@@ -7,7 +7,7 @@
     <h1 class="text-3xl font-bold text-gray-800 mb-6">Editar Proyecto: {{ $project->title }}</h1>
     
     <div class="max-w-4xl mx-auto">
-        @livewire('projects.project-form', ['projectId' => $project->id])
+        @livewire('student.project-form', ['projectId' => $project->id])
     </div>
 </div>
 @endsection

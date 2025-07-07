@@ -4,9 +4,9 @@ namespace App\Livewire\Auth;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\Attributes\Layout; // <-- Importar el atributo de Layout
+use Livewire\Attributes\Layout;
 
-#[Layout('layouts.guest')] // <-- Usar el atributo aquí para definir el layout
+#[Layout('layouts.guest')]
 class Login extends Component
 {
     public string $email = '';

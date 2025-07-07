@@ -3,13 +3,13 @@
 namespace App\Livewire\Auth;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Auth; // <-- Importante: Usar el Facade Auth
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Livewire\Component;
-use Livewire\Attributes\Layout; // <-- Importar el atributo de Layout
+use Livewire\Attributes\Layout;
 
-#[Layout('layouts.guest')] // <-- Usar el atributo aquí
+#[Layout('layouts.guest')]
 class Register extends Component
 {
     public string $name = '';

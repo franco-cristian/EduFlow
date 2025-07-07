@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Projects;
+namespace App\Livewire\Student;
 
 use App\Models\Project;
 use App\Models\User;
@@ -39,8 +39,8 @@ class ProjectForm extends Component
 
     public function loadProject($projectId)
     {
-        $project = Project::findOrFail($projectId);
-        $this->authorize('update', $project); // Autorizar antes de cargar
+        $project = Project::with('files')->findOrFail($projectId);
+        $this->authorize('update', $project);
 
         $this->project = $project;
         $this->projectId = $project->id;
@@ -62,7 +62,7 @@ class ProjectForm extends Component
             'description' => 'required|string',
             'status' => ['required', Rule::in(['planning', 'in_progress', 'completed'])],
             'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'teacher_id' => 'nullable|exists:users,id',
             'files.*' => 'nullable|file|max:10240', // 10MB
         ];
@@ -84,17 +84,17 @@ class ProjectForm extends Component
         if ($this->isEditing) {
             $this->authorize('update', $this->project);
             $this->project->update($projectData);
+            session()->flash('message', 'Proyecto actualizado correctamente.');
         } else {
             $this->authorize('create', Project::class);
             $projectData['user_id'] = Auth::id();
             $this->project = Project::create($projectData);
+            session()->flash('message', 'Proyecto creado correctamente.');
         }
 
-        // Guardar nuevos archivos
         if (!empty($this->files)) {
             foreach ($this->files as $file) {
-                $storedName = $file->store('project_files', 'local'); // Usamos el disco 'local' explícitamente
-
+                $storedName = $file->store('project_files/' . $this->project->id, 'local');
                 $this->project->files()->create([
                     'original_name' => $file->getClientOriginalName(),
                     'stored_name' => $storedName,
@@ -105,17 +105,14 @@ class ProjectForm extends Component
             }
         }
 
-        session()->flash('message', 'Proyecto guardado correctamente.');
-        $this->dispatch('projectSaved');
-
-        // Redirigir a la vista de "mostrar proyecto"
-        return redirect()->route('student.projects.show', $this->project->id);
+        // CORRECCIÓN CLAVE: Redirigir siempre a la lista de proyectos.
+        // Es un flujo más seguro y evita los problemas de dependencias al crear.
+        return redirect()->route('student.projects.index');
     }
 
     public function render()
     {
-        // Cacheamos la consulta para no ejecutarla en cada render
         $teachers = User::where('role', 'teacher')->get();
-        return view('livewire.project-form', compact('teachers'));
+        return view('livewire.student.project-form', compact('teachers'));
     }
 }

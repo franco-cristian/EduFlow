@@ -36,7 +36,11 @@ return [
     ],
 
     'openai' => [
+        'api_type' => env('OPENAI_API_TYPE', 'openai'), // 'openai' o 'azure'
         'key' => env('OPENAI_API_KEY'),
+        'version' => env('OPENAI_API_VERSION'),
+        'azure_endpoint' => env('OPENAI_AZURE_ENDPOINT'),
+        'azure_deployment' => env('OPENAI_AZURE_DEPLOYMENT'),
     ],
 
 ];
