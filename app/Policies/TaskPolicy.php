@@ -2,14 +2,14 @@
 
 namespace App\Policies;
 
+use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\Project;
 
 class TaskPolicy
 {
     /**
-     * Un administrador puede realizar cualquier acción.
+     * Permite a los administradores realizar cualquier acción.
      */
     public function before(User $user, string $ability): bool|null
     {
@@ -21,37 +21,53 @@ class TaskPolicy
 
     /**
      * Determina si el usuario puede ver la tarea.
-     * El usuario debe poder ver el proyecto al que pertenece la tarea.
      */
     public function view(User $user, Task $task): bool
     {
+        // Puede ver la tarea si puede ver el proyecto al que pertenece.
         return $user->can('view', $task->project);
     }
 
     /**
      * Determina si un usuario puede crear tareas para un proyecto.
-     * Solo el creador del proyecto o el profesor asignado.
      */
     public function create(User $user, Project $project): bool
     {
-        return $user->id === $project->user_id || $user->id === $project->teacher_id;
+        // Puede crear una tarea si tiene permiso para actualizar el proyecto (dueño o supervisor).
+        return $user->can('update', $project);
     }
 
     /**
      * Determina si el usuario puede actualizar la tarea.
-     * Solo el creador del proyecto o el profesor asignado.
      */
     public function update(User $user, Task $task): bool
     {
-        return $user->id === $task->project->user_id || $user->id === $task->project->teacher_id;
+        // Puede actualizar la tarea si tiene permiso para actualizar el proyecto.
+        return $user->can('update', $task->project);
     }
 
     /**
      * Determina si el usuario puede eliminar la tarea.
-     * Solo el creador del proyecto o el profesor asignado.
      */
     public function delete(User $user, Task $task): bool
     {
-        return $user->id === $task->project->user_id || $user->id === $task->project->teacher_id;
+        // Puede eliminar la tarea si tiene permiso para actualizar el proyecto.
+        return $user->can('update', $task->project);
+    }
+
+    /**
+     * Determine whether the user can restore the model.
+     */
+    public function restore(User $user, Task $task): bool
+    {
+        return false; // No implementado
+    }
+
+    /**
+     * Determine whether the user can permanently delete the model.
+     */
+    public function forceDelete(User $user, Task $task): bool
+    {
+        return false; // No implementado
     }
 }

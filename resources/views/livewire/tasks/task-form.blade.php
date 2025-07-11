@@ -25,7 +25,7 @@
                         <textarea wire:model="description" id="description" rows="3" class="mt-1 block w-full form-input rounded-md border-gray-300 shadow-sm"></textarea>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                         <div>
+                        <div>
                             <label for="due_date" class="block text-sm font-medium text-gray-700">Fecha Límite</label>
                             <input wire:model="due_date" type="date" id="due_date" class="mt-1 block w-full form-input rounded-md border-gray-300 shadow-sm">
                             @error('due_date') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
@@ -41,7 +41,13 @@
                     </div>
                 </div>
                 <div class="mt-6 flex justify-end space-x-3">
-                    <button type="button" @click="$wire.showModal = false" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg">Cancelar</button>
+                    {{-- AÑADIMOS la acción @click para que AlpineJS cierre el modal --}}
+                    <button
+                        type="button"
+                        @click="$wire.set('showModal', false)" {{-- Forma directa de cambiar una propiedad de Livewire desde Alpine --}}
+                        class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
+                        Cancelar
+                    </button>
                     <button type="submit" class="bg-education-primary text-white px-4 py-2 rounded-lg">{{ $isEditing ? 'Actualizar' : 'Guardar' }}</button>
                 </div>
             </form>

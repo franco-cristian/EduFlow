@@ -6,7 +6,9 @@ use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class ProjectList extends Component
 {
     use WithPagination;

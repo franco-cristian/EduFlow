@@ -44,7 +44,7 @@
                     @forelse($projects as $project)
                         <tr wire:key="project-{{ $project->id }}">
                             <td class="px-6 py-4">
-                                <a href="{{ route('student.projects.show', $project) }}" class="font-medium text-gray-900 hover:text-education-primary">{{ $project->title }}</a>
+                                <a href="{{ route('projects.show', $project) }}" class="font-medium text-gray-900 hover:text-education-primary">{{ $project->title }}</a>
                             </td>
                             <td class="px-6 py-4">
                                 @php

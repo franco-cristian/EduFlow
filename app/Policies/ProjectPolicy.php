@@ -8,14 +8,14 @@ use App\Models\User;
 class ProjectPolicy
 {
     /**
-     * Un administrador puede realizar cualquier acción.
+     * Permite a los administradores realizar cualquier acción antes que las otras reglas.
      */
     public function before(User $user, string $ability): bool|null
     {
-        if ($user->isAdmin()) { // Suponiendo que tienes un método isAdmin() en el modelo User
+        if ($user->isAdmin()) {
             return true;
         }
-        return null; // Dejar que la policy decida
+        return null; // Si no es admin, deja que las otras reglas decidan.
     }
 
     /**
@@ -23,16 +23,16 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        // El creador del proyecto, el profesor asignado o un admin pueden verlo.
+        // Puede ver si es el dueño (estudiante) O el profesor supervisor.
         return $user->id === $project->user_id || $user->id === $project->teacher_id;
     }
 
     /**
      * Determina si un usuario puede crear proyectos.
-     * Por ahora, solo estudiantes.
      */
     public function create(User $user): bool
     {
+        // Solo los estudiantes pueden crear proyectos.
         return $user->role === 'student';
     }
 
@@ -41,8 +41,8 @@ class ProjectPolicy
      */
     public function update(User $user, Project $project): bool
     {
-        // Solo el estudiante que lo creó puede editarlo.
-        return $user->id === $project->user_id;
+        // Puede actualizar si es el dueño O el profesor supervisor.
+        return $user->id === $project->user_id || $user->id === $project->teacher_id;
     }
 
     /**
@@ -50,7 +50,23 @@ class ProjectPolicy
      */
     public function delete(User $user, Project $project): bool
     {
-        // Solo el estudiante que lo creó puede eliminarlo.
+        // Solo el dueño (estudiante) puede eliminar su proyecto.
         return $user->id === $project->user_id;
+    }
+
+    /**
+     * Determine whether the user can restore the model.
+     */
+    public function restore(User $user, Project $project): bool
+    {
+        return false; // No implementado
+    }
+
+    /**
+     * Determine whether the user can permanently delete the model.
+     */
+    public function forceDelete(User $user, Project $project): bool
+    {
+        return false; // No implementado
     }
 }

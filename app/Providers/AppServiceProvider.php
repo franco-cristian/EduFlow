@@ -19,6 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // No se necesita ninguna lógica de Storage::extend aquí
     }
 }

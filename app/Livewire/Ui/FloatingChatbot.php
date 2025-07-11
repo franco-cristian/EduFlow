@@ -4,6 +4,7 @@ namespace App\Livewire\Ui;
 
 use Livewire\Component;
 use App\Services\OpenAIService;
+use Illuminate\Support\Facades\Log;
 
 class FloatingChatbot extends Component
 {

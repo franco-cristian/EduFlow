@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('feedbacks', function (Blueprint $table) {
+        Schema::create('feedbacks', function (Blueprint $table) { // Ya está correcto (plural)
             $table->id();
             $table->text('content');
             $table->foreignId('project_id')->constrained()->onDelete('cascade');
@@ -25,6 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('feedback');
+        // CORRECCIÓN: Usar el nombre plural aquí también
+        Schema::dropIfExists('feedbacks');
     }
 };

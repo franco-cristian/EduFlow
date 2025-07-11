@@ -8,51 +8,52 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\Attributes\Layout;
 
+#[Layout('layouts.app')]
 class ProjectForm extends Component
 {
     use WithFileUploads;
 
     public ?Project $project = null;
-
     public $projectId;
-    public $title;
-    public $description;
+
+    // Propiedades del formulario
+    public $title = '';
+    public $description = '';
     public $status = 'planning';
     public $start_date;
     public $end_date;
     public $teacher_id;
+    
+    // Propiedades para los archivos
     public $files = [];
     public $existingFiles = [];
+    
     public $isEditing = false;
 
-    public function mount($projectId = null)
+    public function mount($project = null) // Cambiamos el nombre del parámetro para claridad
     {
-        if ($projectId) {
-            $this->loadProject($projectId);
+        if ($project && $project instanceof Project) {
+            $this->isEditing = true;
+            $this->project = $project->load('files'); // Carga el proyecto y sus archivos
+            
+            // Rellenamos todas las propiedades del formulario
+            $this->projectId = $this->project->id;
+            $this->title = $this->project->title;
+            $this->description = $this->project->description;
+            $this->status = $this->project->status;
+            $this->start_date = $this->project->start_date->format('Y-m-d');
+            $this->end_date = $this->project->end_date->format('Y-m-d');
+            $this->teacher_id = $this->project->teacher_id;
+            $this->existingFiles = $this->project->files;
+
         } else {
+            // Estado por defecto para un nuevo proyecto
             $this->project = new Project();
             $this->start_date = now()->format('Y-m-d');
             $this->end_date = now()->addWeek()->format('Y-m-d');
         }
-    }
-
-    public function loadProject($projectId)
-    {
-        $project = Project::with('files')->findOrFail($projectId);
-        $this->authorize('update', $project);
-
-        $this->project = $project;
-        $this->projectId = $project->id;
-        $this->isEditing = true;
-
-        $this->title = $project->title;
-        $this->description = $project->description;
-        $this->status = $project->status;
-        $this->start_date = $project->start_date->format('Y-m-d');
-        $this->end_date = $project->end_date->format('Y-m-d');
-        $this->teacher_id = $project->teacher_id;
-        $this->existingFiles = $project->files;
     }
 
     public function rules()
@@ -105,8 +106,6 @@ class ProjectForm extends Component
             }
         }
 
-        // CORRECCIÓN CLAVE: Redirigir siempre a la lista de proyectos.
-        // Es un flujo más seguro y evita los problemas de dependencias al crear.
         return redirect()->route('student.projects.index');
     }
 

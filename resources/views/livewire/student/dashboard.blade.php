@@ -1,8 +1,3 @@
-@extends('layouts.app')
-
-@section('title', 'Dashboard del Estudiante')
-
-@section('content')
 <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     {{-- Encabezado y Botón de Nuevo Proyecto --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
@@ -95,7 +90,7 @@
                         @foreach($projects as $project)
                             <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <a href="{{ route('student.projects.show', $project) }}" class="font-medium text-gray-900 hover:text-education-primary">
+                                    <a href="{{ route('projects.show', $project) }}" class="font-medium text-gray-900 hover:text-education-primary">
                                         {{ $project->title }}
                                     </a>
                                     <p class="text-sm text-gray-500 mt-1">
@@ -123,7 +118,7 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ route('student.projects.show', $project) }}" class="text-education-primary hover:text-education-secondary">Ver</a>
+                                    <a href="{{ route('projects.show', $project) }}" class="text-education-primary hover:text-education-secondary">Ver</a>
                                 </td>
                             </tr>
                         @endforeach
@@ -139,4 +134,3 @@
     </div>
 </section>
 </div>
-@endsection
